@@ -41,6 +41,12 @@ INSTALLED_APPS = [
     'corsheaders',
     'accounts',
     'salons',
+    'services',
+    'employees',
+    'appointments',
+    'payments',
+    
+
 ]
 
 MIDDLEWARE = [
@@ -139,3 +145,11 @@ STATIC_URL = 'static/'
 AUTH_USER_MODEL = 'accounts.User'
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'smtp.example.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'votre-email@example.com'
+EMAIL_HOST_PASSWORD = 'motdepasse'
+DEFAULT_FROM_EMAIL = 'noreply@easyhoster.com'

@@ -15,3 +15,28 @@ class Salon(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class SalonOpeningHour(models.Model):
+    DAYS = (
+        (0, 'Lundi'),
+        (1, 'Mardi'),
+        (2, 'Mercredi'),
+        (3, 'Jeudi'),
+        (4, 'Vendredi'),
+        (5, 'Samedi'),
+        (6, 'Dimanche'),
+    )
+
+    salon = models.ForeignKey(
+        Salon,
+        on_delete=models.CASCADE,
+        related_name='opening_hours'
+    )
+    day_of_week = models.IntegerField(choices=DAYS)
+    open_time = models.TimeField()
+    close_time = models.TimeField()
+    is_closed = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('salon', 'day_of_week')
