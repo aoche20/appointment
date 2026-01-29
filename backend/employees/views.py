@@ -30,6 +30,8 @@ class EmployeeViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         salon_id = serializer.validated_data.pop('salon_id')
         services = serializer.validated_data.pop('services')
+        
+        # Vérifier que le salon appartient bien à l'utilisateur
 
         try:
             salon = Salon.objects.get(id=salon_id, owner=self.request.user)
@@ -37,6 +39,20 @@ class EmployeeViewSet(viewsets.ModelViewSet):
             raise ValidationError(
                 {"salon_id": "Salon invalide ou ne vous appartient pas"}
             )
+        
+        # Vérifier la limite d'employés (ABONNEMENT)
+        subscription = Subscription.objects.get(salon=salon)
+
+        if subscription.plan.max_employees:
+            current_count = Employee.objects.filter(
+                salon=salon,
+                is_active=True
+            ).count()
+
+            if current_count >= subscription.plan.max_employees:
+                raise ValidationError(
+                    "Limite d’employés atteinte. Passez au plan supérieur."
+                )
 
         employee = serializer.save(salon=salon)
         employee.services.set(services)

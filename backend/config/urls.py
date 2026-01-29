@@ -13,6 +13,10 @@ urlpatterns = [
     path('api/services/', include('services.urls')),
     path('api/employees/', include('employees.urls')),
     path('api/appointments/', include('appointments.urls')),
+    path('api/dashboard/', include('dashboard.urls')),
+    path('api/subscriptions/', include('subscriptions.urls')),
+
+
     
     path('api/', include(router.urls)),
     

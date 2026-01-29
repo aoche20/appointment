@@ -9,7 +9,9 @@ from services.models import Service
 from employees.models import Employee
 from datetime import datetime
 from .utils import generate_time_slots
-
+from subscriptions.models import Subscription
+from django.utils import timezone
+from rest_framework.exceptions import ValidationError
 
 class AppointmentViewSet(viewsets.ModelViewSet):
     serializer_class = AppointmentSerializer
@@ -27,6 +29,20 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         return Appointment.objects.none()
 
     def perform_create(self, serializer):
+        salon = serializer.validated_data['salon']
+        subscription = Subscription.objects.get(salon=salon)
+
+        if subscription.plan.max_appointments:
+            month_count = Appointment.objects.filter(
+                salon=salon,
+                created_at__month=timezone.now().month,
+                created_at__year=timezone.now().year
+            ).count()
+
+            if month_count >= subscription.plan.max_appointments:
+                raise ValidationError(
+                    "Limite mensuelle de rendez-vous atteinte."
+                )
         serializer.save(client=self.request.user)
 
 

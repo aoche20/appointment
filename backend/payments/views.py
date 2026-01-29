@@ -6,6 +6,7 @@ from .models import Payment
 from .serializers import PaymentSerializer
 from utils.email import send_appointment_confirmation_email
 from utils.sms import send_sms
+from subscriptions.models import Subscription
 
 class PaymentViewSet(viewsets.ModelViewSet):
     queryset = Payment.objects.all()
@@ -14,12 +15,22 @@ class PaymentViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         appointment = serializer.validated_data['appointment']
+        
 
         if appointment.client != self.request.user:
             raise ValidationError("Ce rendez-vous ne vous appartient pas")
 
         if hasattr(appointment, 'payment'):
             raise ValidationError("Paiement déjà initié")
+        
+        subscription = Subscription.objects.get(
+        salon=appointment.salon
+    )
+
+        if not subscription.plan.online_payment:
+            raise ValidationError(
+            "Le paiement en ligne nécessite un abonnement Pro."
+            )
 
         serializer.save(
             amount=appointment.service.price,
